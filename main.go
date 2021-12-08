@@ -9,8 +9,13 @@ import (
 )
 
 func main() {
-	logger := log.New(os.Stdout, "awesome-go", log.Flags())
+	logger := log.New(os.Stdout, "go-micro-api", log.LstdFlags)
 	hw := handlers.NewHello(logger)
+	gb := handlers.NewGoodbye(logger)
 
-	http.ListenAndServe(":9090", nil)
+	mux := http.NewServeMux()
+	mux.Handle("/", hw)
+	mux.Handle("/goodbye", gb)
+
+	http.ListenAndServe(":9090", mux)
 }

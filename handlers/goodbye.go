@@ -7,16 +7,16 @@ import (
 	"net/http"
 )
 
-type Hello struct {
+type Goodbye struct {
 	log *log.Logger
 }
 
-func NewHello(log *log.Logger) *Hello {
+func NewGoodbye(log *log.Logger) *Hello {
 	return &Hello{log: log}
 }
 
-func (hello *Hello) ServeHTTP(rw http.ResponseWriter, r *http.Request) {
-	hello.log.Println("Hello world!")
+func (Goodbye *Goodbye) ServeHTTP(rw http.ResponseWriter, r *http.Request) {
+	Goodbye.log.Println("Good bye!")
 	data, err := ioutil.ReadAll(r.Body)
 	if err != nil {
 		http.Error(rw, "Oops", http.StatusBadRequest)
