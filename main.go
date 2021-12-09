@@ -51,6 +51,7 @@ func main() {
 
 	slg := <-signalChannel
 	logger.Println("Received terminate, graceful shutdown", slg)
-	tc, _ := context.WithTimeout(context.Background(), 30*time.Second)
+	tc, contextFunc := context.WithTimeout(context.Background(), 30*time.Second)
+	defer contextFunc()
 	server.Shutdown(tc)
 }
