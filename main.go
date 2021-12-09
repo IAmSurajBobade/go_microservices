@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
+	"syscall"
 	"time"
 
 	"github.com/IAmSurajBobade/go_microservices/handlers"
@@ -13,12 +14,12 @@ import (
 
 func main() {
 	logger := log.New(os.Stdout, "go-micro-api - ", log.LstdFlags)
-	hw := handlers.NewHello(logger)
-	gb := handlers.NewGoodbye(logger)
+
+	prods := handlers.NewProduct(logger)
 
 	mux := http.NewServeMux()
-	mux.Handle("/goodbye", gb)
-	mux.Handle("/hello", hw)
+
+	mux.Handle("/", prods)
 
 	server := &http.Server{
 		Addr:         ":9090",
@@ -35,9 +36,9 @@ func main() {
 		}
 	}()
 
-	signalChannel := make(chan os.Signal)
+	signalChannel := make(chan os.Signal, 4)
 	signal.Notify(signalChannel, os.Interrupt)
-	signal.Notify(signalChannel, os.Kill)
+	signal.Notify(signalChannel, syscall.SIGTERM)
 
 	slg := <-signalChannel
 	logger.Println("Received terminate, graceful shutdown", slg)
