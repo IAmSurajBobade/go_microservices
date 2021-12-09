@@ -10,6 +10,7 @@ import (
 	"time"
 
 	"github.com/IAmSurajBobade/go_microservices/handlers"
+	"github.com/gorilla/mux"
 )
 
 func main() {
@@ -17,9 +18,16 @@ func main() {
 
 	prods := handlers.NewProduct(logger)
 
-	mux := http.NewServeMux()
+	mux := mux.NewRouter()
 
-	mux.Handle("/", prods)
+	getRouter := mux.Methods(http.MethodGet).Subrouter()
+	getRouter.HandleFunc("/", prods.GetProducts)
+	putRouter := mux.Methods(http.MethodPut).Subrouter()
+	putRouter.HandleFunc("/{id:[0-9]+}", prods.UpdateProducts)
+	putRouter.Use(prods.MiddlewareHTTPHandler)
+	postRouter := mux.Methods(http.MethodPost).Subrouter()
+	postRouter.HandleFunc("/", prods.AddProducts)
+	postRouter.Use(prods.MiddlewareHTTPHandler)
 
 	server := &http.Server{
 		Addr:         ":9090",
@@ -34,6 +42,7 @@ func main() {
 		if err != nil {
 			logger.Fatal(err)
 		}
+		logger.Println("Server Started listening on ", server.Addr)
 	}()
 
 	signalChannel := make(chan os.Signal, 4)

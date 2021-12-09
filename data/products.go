@@ -34,7 +34,7 @@ func GetProducts() Products {
 }
 
 func UpdateProducts(id int, prod Product) error {
-	_, pos, err := getProduct(id)
+	pos, err := getProduct(id)
 	if err != nil {
 		return err
 	}
@@ -44,13 +44,13 @@ func UpdateProducts(id int, prod Product) error {
 	return nil
 }
 
-func getProduct(id int) (*Product, int, error) {
+func getProduct(id int) (int, error) {
 	for i, v := range productList {
 		if v.ID == id {
-			return v, i, nil
+			return i, nil
 		}
 	}
-	return nil, 0, ErrProdNotFound
+	return 0, ErrProdNotFound
 }
 func AddProducts(prod Product) {
 	prod.ID = getNextID()
