@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"context"
+	"fmt"
 	"log"
 	"net/http"
 	"strconv"
@@ -60,7 +61,17 @@ func (prod Products) MiddlewareHTTPHandler(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(rw http.ResponseWriter, r *http.Request) {
 		prods := data.Product{}
 		if err := prods.FromJSON(r.Body); err != nil {
+			prod.log.Println("[Error] deserializing product", err)
 			http.Error(rw, "Unable to marshal JSON", http.StatusBadRequest)
+			return
+		}
+		err := prods.Validate()
+		if err != nil {
+			prod.log.Println("[Error] validating product", err)
+			http.Error(
+				rw,
+				fmt.Sprintf("Error validating product %s", err),
+				http.StatusBadRequest)
 			return
 		}
 		ctx := context.WithValue(r.Context(), KeyValue{}, prods)
