@@ -1,22 +1,6 @@
-// Package classification of Product API
-//
-// Documentation for Product API
-//
-//	Schemes: http
-//	BasePath: /
-//	Version: 1.0.0
-//
-//	Consumes:
-//	- application/json
-//
-//	Produces:
-//	- application/json
-//
-// swagger:meta
 package handlers
 
 import (
-	"context"
 	"fmt"
 	"log"
 	"net/http"
@@ -26,71 +10,47 @@ import (
 	"github.com/gorilla/mux"
 )
 
+// KeyProduct is a key used for the Product object in the context
+type KeyProduct struct{}
+
+// Products handler for getting and updating products
 type Products struct {
-	log *log.Logger
+	l *log.Logger
+	v *data.Validation
 }
 
-func NewProduct(logger *log.Logger) *Products {
-	return &Products{log: logger}
+// NewProducts returns a new products handler with the given logger
+func NewProducts(l *log.Logger, v *data.Validation) *Products {
+	return &Products{l, v}
 }
 
-func (product *Products) GetProducts(rw http.ResponseWriter, r *http.Request) {
-	product.log.Println("Handling GET request")
-	prods := data.GetProducts()
+// ErrInvalidProductPath is an error message when the product path is not valid
+var ErrInvalidProductPath = fmt.Errorf("Invalid Path, path should be /products/[id]")
 
-	err := prods.ToJSON(rw)
+// GenericError is a generic error message returned by a server
+type GenericError struct {
+	Message string `json:"message"`
+}
+
+// ValidationError is a collection of validation error messages
+type ValidationError struct {
+	Messages []string `json:"messages"`
+}
+
+// getProductID returns the product ID from the URL
+// Panics if cannot convert the id into an integer
+// this should never happen as the router ensures that
+// this is a valid number
+func getProductID(r *http.Request) int {
+	// parse the product id from the url
+	vars := mux.Vars(r)
+
+	// convert the id into an integer and return
+	id, err := strconv.Atoi(vars["id"])
 	if err != nil {
-		http.Error(rw, "Unable to marshal JSON", http.StatusInternalServerError)
+		// should never happen
+		panic(err)
 	}
-}
 
-func (product *Products) AddProducts(rw http.ResponseWriter, r *http.Request) {
-	product.log.Println("Handling POST request")
-	prods := r.Context().Value(KeyValue{}).(data.Product)
-	data.AddProducts(prods)
-}
-
-func (product *Products) UpdateProducts(rw http.ResponseWriter, r *http.Request) {
-	val := mux.Vars(r)
-	id, err := strconv.Atoi(val["id"])
-	if err != nil {
-		http.Error(rw, "Invalid ID provided", http.StatusBadRequest)
-		return
-	}
-	product.log.Println("Handling PUT request for ID: ", id)
-	prods := r.Context().Value(KeyValue{}).(data.Product)
-	err = data.UpdateProducts(id, prods)
-	if err == data.ErrProdNotFound {
-		http.Error(rw, "Product not found", http.StatusNotFound)
-		return
-	}
-	if err != nil {
-		http.Error(rw, "Error occurred", http.StatusInternalServerError)
-		return
-	}
-}
-
-type KeyValue struct{}
-
-func (prod Products) MiddlewareHTTPHandler(next http.Handler) http.Handler {
-	return http.HandlerFunc(func(rw http.ResponseWriter, r *http.Request) {
-		prods := data.Product{}
-		if err := prods.FromJSON(r.Body); err != nil {
-			prod.log.Println("[Error] deserializing product", err)
-			http.Error(rw, "Unable to marshal JSON", http.StatusBadRequest)
-			return
-		}
-		err := prods.Validate()
-		if err != nil {
-			prod.log.Println("[Error] validating product", err)
-			http.Error(
-				rw,
-				fmt.Sprintf("Error validating product %s", err),
-				http.StatusBadRequest)
-			return
-		}
-		ctx := context.WithValue(r.Context(), KeyValue{}, prods)
-		r = r.WithContext(ctx)
-		next.ServeHTTP(rw, r)
-	})
+	return id
 }
