@@ -1,3 +1,19 @@
+// Package classification of Product API
+//
+// Documentation for Product API
+//
+//	Schemes: http
+//	BasePath: /
+//	Version: 1.0.0
+//
+//	Consumes:
+//	- application/json
+//
+//	Produces:
+//	- application/json
+//
+// swagger:meta
+
 package handlers
 
 import (
@@ -7,7 +23,7 @@ import (
 	"net/http"
 	"strconv"
 
-	"github.com/IAmSurajBobade/go_microservices/data"
+	"github.com/IAmSurajBobade/go_microservices/product-api/data"
 	"github.com/gorilla/mux"
 )
 

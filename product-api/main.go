@@ -9,7 +9,7 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/IAmSurajBobade/go_microservices/handlers"
+	"github.com/IAmSurajBobade/go_microservices/product-api/handlers"
 	"github.com/gorilla/mux"
 )
 
