@@ -2,18 +2,21 @@
 curl localhost:9090 -v
 
 # Get products
-curl localhost:9090/products
 curl localhost:9090
 
 # Post request
-curl localhost:9090/products -d '{\"name\": \"tea\",\"price\":1.99}'
-curl localhost:9090 -XPOST -d '{\"name\": \"Latte King\",\"price\":10.75}'
+curl localhost:9090 -XPOST -d '{\"name\": \"Latte King\",\"price\":10.75}' #windows
+curl localhost:9090 -XPOST -d '{"name": "Latte King","price":10.75}' #linux
 
 # PUT request
-curl localhost:9090/products/3 -d '{\"name\": \"tea\",\"price\":1.5}'
-curl localhost:9090/1 -XPUT -d '{\"name\": \"Latte Special\",\"price\":1.75}'
+curl localhost:9090/1 -XPUT -d '{\"name\": \"Latte Special\",\"price\":1.75}' #windows
+curl localhost:9090/1 -XPUT -d '{"name": "Latte Special","price":1.75}' #linux
 
 ######### Removed #########
+curl localhost:9090/products
+curl localhost:9090/products -d '{\"name\": \"tea\",\"price\":1.99}'
+curl localhost:9090/products/3 -d '{\"name\": \"tea\",\"price\":1.5}'
+
 # Server request with data
 curl localhost:9090/hello -d 'Suraj'
 
